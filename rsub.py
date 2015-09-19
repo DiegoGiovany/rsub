@@ -3,6 +3,7 @@ import sublime_plugin
 import os
 import tempfile
 import socket
+
 from threading import Thread
 try:
     import socketserver
@@ -20,6 +21,7 @@ Double line breaks on Windows.
 
 SESSIONS = {}
 server = None
+WINDOW_HANDLE = 'sublime_text.sublime-text-2'
 
 
 def say(msg):
@@ -85,6 +87,7 @@ class Session:
         self.socket.send(b"\n")
 
     def on_done(self):
+        global WINDOW_HANDLE
         # Create a secure temporary directory, both for privacy and to allow
         # multiple files with the same basename to be edited at once without
         # overwriting each other.
@@ -135,7 +138,7 @@ class Session:
                           'tell app "Finder" to set frontmost of process "Sublime Text" to true')
         elif(sublime.platform() == 'linux'):
             import subprocess
-            subprocess.call("wmctrl -xa 'sublime_text.sublime-text-2'", shell=True)
+            subprocess.call("wmctrl -xa '%s'" % WINDOW_HANDLE, shell=True)
 
 
 class ConnectionHandler(socketserver.BaseRequestHandler):
@@ -186,7 +189,9 @@ class RSubEventListener(sublime_plugin.EventListener):
 
 
 def plugin_loaded():
-    global SESSIONS, server
+    global SESSIONS, WINDOW_HANDLE, server
+
+    WINDOW_HANDLE = 'sublime_text.Sublime_text'
 
     # Load settings
     settings = sublime.load_settings("rsub.sublime-settings")
