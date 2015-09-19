@@ -128,7 +128,10 @@ class Session:
         # This is mostly useful to obtain the path of this file on the server
         view.settings().set('rsub', self.env)
 
+        print( 'yes' )
+        print( view.name(), view.file_name() )
         self.set_name( view, self.env['display-name'] )
+        print( view.name(), view.file_name() )
 
         # Add the session to the global list
         SESSIONS[view.id()] = self
