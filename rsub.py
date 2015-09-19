@@ -84,6 +84,12 @@ class Session:
         self.socket.send(new_file)
         self.socket.send(b"\n")
 
+    def set_name(self, view, name):
+        if( not view.is_loading() ):
+            view.set_name(name)
+        else:
+            sublime.set_timeout(lambda: self.set_name(view, name), 10)
+
     def on_done(self):
         # Create a secure temporary directory, both for privacy and to allow
         # multiple files with the same basename to be edited at once without
@@ -121,6 +127,8 @@ class Session:
         # Add the file metadata to the view's settings
         # This is mostly useful to obtain the path of this file on the server
         view.settings().set('rsub', self.env)
+
+        self.set_name( view, self.env['display-name'] )
 
         # Add the session to the global list
         SESSIONS[view.id()] = self
