@@ -66,13 +66,13 @@ def removeEmptyFolders( path, removeRoot=True ):
 
 class Session:
     def __init__(self, socket):
-        self.env = {}
-        self.file = b""
-        self.file_size = 0
-        self.in_file = False
+        self.env        = {}
+        self.file       = b""
+        self.file_size  = 0
+        self.in_file    = False
         self.parse_done = False
-        self.socket = socket
-        self.temp_file = None
+        self.socket     = socket
+        self.temp_file  = None
 
 
     def parse_input(self, input_line):
