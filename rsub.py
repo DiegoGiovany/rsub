@@ -228,6 +228,12 @@ class RSubEventListener(sublime_plugin.EventListener):
             say('Closed ' + sess.env['display-name'])
 
 
+def plugin_unloaded():
+    global WORKDIR
+
+    removeEmptyFolders( WORKDIR )
+
+
 def plugin_loaded():
     global SESSIONS, WINDOW_HANDLE, WORKDIR, server
 
