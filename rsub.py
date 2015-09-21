@@ -34,7 +34,7 @@ class Session:
         self.in_file = False
         self.parse_done = False
         self.socket = socket
-        self.temp_path = None
+        self.temp_file = None
 
     # http://www.jacobtomlinson.co.uk/2014/02/16/python-script-recursively-remove-empty-folders-directories/
     def removeEmptyFolders( self, path, removeRoot=True ):
@@ -92,13 +92,13 @@ class Session:
         self.socket.send(b"\n")
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
-        os.unlink(self.temp_path)
+        os.unlink(self.temp_file)
         os.rmdir(self.temp_dir)
 
     def send_save(self):
         self.socket.send(b"save\n")
         self.socket.send(b"token: " + self.env['token'].encode("utf8") + b"\n")
-        temp_file = open(self.temp_path, "rb")
+        temp_file = open(self.temp_file, "rb")
         new_file = temp_file.read()
         temp_file.close()
         self.socket.send(b"data: " + str(len(new_file)).encode("utf8") + b"\n")
@@ -114,17 +114,17 @@ class Session:
         except OSError as e:
             sublime.error_message('Failed to create rsub temporary directory! Error: %s' % e)
             return
-        self.temp_path = os.path.join(self.temp_dir,
+        self.temp_file = os.path.join(self.temp_dir,
                                       os.path.basename(self.env['display-name'].split(':')[-1]))
         try:
-            temp_file = open(self.temp_path, "wb+")
+            temp_file = open( self.temp_file, "wb+" )
             temp_file.write(self.file[:self.file_size])
             temp_file.flush()
             temp_file.close()
         except IOError as e:
             # Remove the file if it exists.
-            if os.path.exists(self.temp_path):
-                os.remove(self.temp_path)
+            if os.path.exists( self.temp_file ):
+                os.remove( self.temp_file )
             try:
                 os.rmdir(self.temp_dir)
             except OSError:
@@ -137,7 +137,7 @@ class Session:
             sublime.run_command("new_window")
 
         # Open it within sublime
-        view = sublime.active_window().open_file(self.temp_path)
+        view = sublime.active_window().open_file( self.temp_file )
 
         # Add the file metadata to the view's settings
         # This is mostly useful to obtain the path of this file on the server
