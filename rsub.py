@@ -95,7 +95,11 @@ class Session:
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
         os.unlink(self.temp_file)
-        os.rmdir(WORKDIR)
+        try:
+            self.removeEmptyFolders( WORKDIR, True )
+        except OSError as e:
+            sublime.error_message( 'Can not clean WORKDIR: %s' % e )
+
 
     def send_save(self):
         self.socket.send(b"save\n")
@@ -129,9 +133,9 @@ class Session:
             if os.path.exists( self.temp_file ):
                 os.remove( self.temp_file )
             try:
-                os.rmdir(WORKDIR)
-            except OSError:
-                pass
+                self.removeEmptyFolders( self.temp_dir )
+             except OSError as e:
+                 sublime.error_message( 'Can not clean WORKDIR: %s' % e )
 
             sublime.error_message('Failed to write to temp file! Error: %s' % str(e))
 
