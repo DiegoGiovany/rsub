@@ -20,6 +20,7 @@ Double line breaks on Windows.
 
 SESSIONS = {}
 server = None
+WORKDIR = None
 
 
 def say(msg):
@@ -87,13 +88,14 @@ class Session:
             self.file += line
 
     def close(self):
+        global WORKDIR
         self.socket.send(b"close\n")
         self.socket.send(b"token: " + self.env['token'].encode("utf8") + b"\n")
         self.socket.send(b"\n")
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
         os.unlink(self.temp_file)
-        os.rmdir(self.temp_dir)
+        os.rmdir(WORKDIR)
 
     def send_save(self):
         self.socket.send(b"save\n")
@@ -106,11 +108,12 @@ class Session:
         self.socket.send(b"\n")
 
     def on_done(self):
+        global WORKDIR
         # Create a secure temporary directory, both for privacy and to allow
         # multiple files with the same basename to be edited at once without
         # overwriting each other.
         try:
-            self.temp_dir = tempfile.mkdtemp(prefix='rsub-')
+            self.temp_dir = WORKDIR
         except OSError as e:
             sublime.error_message('Failed to create rsub temporary directory! Error: %s' % e)
             return
@@ -126,7 +129,7 @@ class Session:
             if os.path.exists( self.temp_file ):
                 os.remove( self.temp_file )
             try:
-                os.rmdir(self.temp_dir)
+                os.rmdir(WORKDIR)
             except OSError:
                 pass
 
@@ -207,7 +210,7 @@ class RSubEventListener(sublime_plugin.EventListener):
 
 
 def plugin_loaded():
-    global SESSIONS, server
+    global SESSIONS, WORKDIR, server
 
     # Load settings
     settings = sublime.load_settings("rsub.sublime-settings")
@@ -218,6 +221,13 @@ def plugin_loaded():
     server = TCPServer((host, port), ConnectionHandler)
     Thread(target=start_server, args=[]).start()
     say('Server running on ' + host + ':' + str(port) + '...')
+
+    try:
+        WORKDIR =  tempfile.mkdtemp(prefix='rsub-')
+    except OSError as e:
+        sublime.error_message('Failed to create rsub temporary working directory! Error: %s' % e)
+        return
+
 
 # call the plugin_loaded() function if running in sublime text 2
 if (int(sublime.version())< 3000):
