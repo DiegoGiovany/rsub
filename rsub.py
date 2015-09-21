@@ -145,11 +145,14 @@ class Session:
                 and self.env['host'] == env['host']
                 and self.env['real-path'] == env['real-path']
             ):
+                self.env['work_dir'] =  env['work_dir']
                 SESSIONS[ v.id() ] =  self
                 sublime.active_window().focus_view( v )
                 bring_to_front()
                 return
 
+
+        self.env['work_dir'] =  WORKDIR
         self.temp_dir =  WORKDIR +"/" +self.env['host'] +os.path.dirname( self.env['real-path'] )
 
         try:
