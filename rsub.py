@@ -28,6 +28,27 @@ WORKDIR = None
 def say(msg):
     print('[rsub] ' + msg)
 
+# http://www.jacobtomlinson.co.uk/2014/02/16/python-script-recursively-remove-empty-folders-directories/
+def removeEmptyFolders( path, removeRoot=True ):
+    'Function to remove empty folders'
+    if not os.path.isdir(path):
+        return
+
+    # remove empty subfolders
+    files = os.listdir(path)
+    if len(files):
+        for f in files:
+            fullpath = os.path.join(path, f)
+            if os.path.isdir(fullpath):
+                removeEmptyFolders(fullpath)
+
+    # if folder empty, delete it
+    files = os.listdir(path)
+    if len(files) == 0 and removeRoot:
+        print( "Removing empty folder:", path )
+        os.rmdir(path)
+
+
 
 class Session:
     def __init__(self, socket):
@@ -38,26 +59,6 @@ class Session:
         self.parse_done = False
         self.socket = socket
         self.temp_file = None
-
-    # http://www.jacobtomlinson.co.uk/2014/02/16/python-script-recursively-remove-empty-folders-directories/
-    def removeEmptyFolders( self, path, removeRoot=True ):
-        'Function to remove empty folders'
-        if not os.path.isdir(path):
-            return
-
-        # remove empty subfolders
-        files = os.listdir(path)
-        if len(files):
-            for f in files:
-                fullpath = os.path.join(path, f)
-                if os.path.isdir(fullpath):
-                    self.removeEmptyFolders(fullpath)
-
-        # if folder empty, delete it
-        files = os.listdir(path)
-        if len(files) == 0 and removeRoot:
-            print( "Removing empty folder:", path )
-            os.rmdir(path)
 
 
     def parse_input(self, input_line):
@@ -98,7 +99,7 @@ class Session:
         self.socket.close()
         os.unlink(self.temp_file)
         try:
-            self.removeEmptyFolders( WORKDIR, True )
+            removeEmptyFolders( WORKDIR, True )
         except OSError as e:
             sublime.error_message( 'Can not clean WORKDIR: %s' % e )
 
@@ -142,9 +143,9 @@ class Session:
             if os.path.exists( self.temp_file ):
                 os.remove( self.temp_file )
             try:
-                self.removeEmptyFolders( self.temp_dir )
+                removeEmptyFolders( self.temp_dir )
             except OSError as e:
-                 sublime.error_message( 'Can not clean WORKDIR: %s' % e )
+                sublime.error_message( 'Can not clean WORKDIR: %s' % e )
 
             sublime.error_message('Failed to write to temp file! Error: %s' % str(e))
 
