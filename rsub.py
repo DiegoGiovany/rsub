@@ -28,6 +28,20 @@ WORKDIR = None
 def say(msg):
     print('[rsub] ' + msg)
 
+def bring_to_front():
+    global WINDOW_HANDLE
+    if(sublime.platform() == 'osx'):
+        if(SBApplication):
+            subl_window = SBApplication.applicationWithBundleIdentifier_("com.sublimetext.2")
+            subl_window.activate()
+        else:
+            os.system("/usr/bin/osascript -e '%s'" %
+                      'tell app "Finder" to set frontmost of process "Sublime Text" to true')
+    elif(sublime.platform() == 'linux'):
+        import subprocess
+        subprocess.call("wmctrl -xa '%s'" % WINDOW_HANDLE, shell=True)
+
+
 # http://www.jacobtomlinson.co.uk/2014/02/16/python-script-recursively-remove-empty-folders-directories/
 def removeEmptyFolders( path, removeRoot=True ):
     'Function to remove empty folders'
@@ -115,7 +129,7 @@ class Session:
         self.socket.send(b"\n")
 
     def on_done(self):
-        global WINDOW_HANDLE, WORKDIR
+        global WORKDIR
         # Create a secure temporary directory, both for privacy and to allow
         # multiple files with the same basename to be edited at once without
         # overwriting each other.
@@ -164,16 +178,7 @@ class Session:
         SESSIONS[view.id()] = self
 
         # Bring sublime to front
-        if(sublime.platform() == 'osx'):
-            if(SBApplication):
-                subl_window = SBApplication.applicationWithBundleIdentifier_("com.sublimetext.2")
-                subl_window.activate()
-            else:
-                os.system("/usr/bin/osascript -e '%s'" %
-                          'tell app "Finder" to set frontmost of process "Sublime Text" to true')
-        elif(sublime.platform() == 'linux'):
-            import subprocess
-            subprocess.call("wmctrl -xa '%s'" % WINDOW_HANDLE, shell=True)
+        bring_to_front()
 
 
 class ConnectionHandler(socketserver.BaseRequestHandler):
