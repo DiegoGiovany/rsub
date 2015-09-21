@@ -105,7 +105,6 @@ class Session:
             self.file += line
 
     def close(self):
-        global WORKDIR
         self.socket.send(b"close\n")
         self.socket.send(b"token: " + self.env['token'].encode("utf8") + b"\n")
         self.socket.send(b"\n")
@@ -113,7 +112,7 @@ class Session:
         self.socket.close()
         os.unlink(self.temp_file)
         try:
-            removeEmptyFolders( WORKDIR, True )
+            removeEmptyFolders( self.env['work_dir'], True )
         except OSError as e:
             sublime.error_message( 'Can not clean WORKDIR: %s' % e )
 
