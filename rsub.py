@@ -21,7 +21,7 @@ Double line breaks on Windows.
 
 SESSIONS = {}
 server = None
-WINDOW_HANDLE = 'sublime_text.sublime-text-2'
+WINDOW_HANDLE = 'sublime_text.Sublime_text'
 
 
 def say(msg):
@@ -191,8 +191,6 @@ class RSubEventListener(sublime_plugin.EventListener):
 def plugin_loaded():
     global SESSIONS, WINDOW_HANDLE, server
 
-    WINDOW_HANDLE = 'sublime_text.Sublime_text'
-
     # Load settings
     settings = sublime.load_settings("rsub.sublime-settings")
     port = settings.get("port", 52698)
@@ -205,4 +203,5 @@ def plugin_loaded():
 
 # call the plugin_loaded() function if running in sublime text 2
 if (int(sublime.version())< 3000):
+    WINDOW_HANDLE = 'sublime_text.sublime-text-2'
     plugin_loaded()
