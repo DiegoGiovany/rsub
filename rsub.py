@@ -141,7 +141,7 @@ class Session:
                 os.remove( self.temp_file )
             try:
                 self.removeEmptyFolders( self.temp_dir )
-             except OSError as e:
+            except OSError as e:
                  sublime.error_message( 'Can not clean WORKDIR: %s' % e )
 
             sublime.error_message('Failed to write to temp file! Error: %s' % str(e))
