@@ -146,6 +146,7 @@ class Session:
             ):
                 self.env['work_dir'] =  env['work_dir']
                 SESSIONS[ v.id() ] =  self
+                self.temp_file =  v.file_name()
                 sublime.active_window().focus_view( v )
                 bring_to_front()
                 return
