@@ -116,8 +116,13 @@ class Session:
         # Create a secure temporary directory, both for privacy and to allow
         # multiple files with the same basename to be edited at once without
         # overwriting each other.
+
+        self.env['host'] =  self.env['display-name'].split(':')[0]
+        self.temp_dir =  WORKDIR +"/" +self.env['host'] +os.path.dirname( self.env['real-path'] )
+
         try:
-            self.temp_dir = WORKDIR
+            if not os.path.exists( self.temp_dir ) :
+                os.makedirs( self.temp_dir )
         except OSError as e:
             sublime.error_message('Failed to create rsub temporary directory! Error: %s' % e)
             return
