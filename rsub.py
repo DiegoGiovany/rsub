@@ -135,6 +135,21 @@ class Session:
         # overwriting each other.
 
         self.env['host'] =  self.env['display-name'].split(':')[0]
+
+        v_list =  sublime.active_window().views();
+        for v in v_list:
+            env =  v.settings().get( 'rsub' )
+            if (
+                bool( env )
+                and not v.id() in SESSIONS
+                and self.env['host'] == env['host']
+                and self.env['real-path'] == env['real-path']
+            ):
+                SESSIONS[ v.id() ] =  self
+                sublime.active_window().focus_view( v )
+                bring_to_front()
+                return
+
         self.temp_dir =  WORKDIR +"/" +self.env['host'] +os.path.dirname( self.env['real-path'] )
 
         try:
