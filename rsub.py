@@ -128,7 +128,7 @@ class Session:
         self.socket.send(b"\n")
 
     def on_done(self):
-        global WORKDIR
+        global WORKDIR, SESSIONS
         # Create a secure temporary directory, both for privacy and to allow
         # multiple files with the same basename to be edited at once without
         # overwriting each other.
