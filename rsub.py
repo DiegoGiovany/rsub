@@ -147,11 +147,11 @@ class Session:
                 and self.env['real-path'] == env['real-path']
             ):
                 self.env['work_dir'] =  env['work_dir']
-                SESSIONS[ v.id() ] =  self
                 self.temp_file =  v.file_name()
                 self.send_save()
                 sublime.active_window().focus_view( v )
-                bring_to_front()
+
+                self.configure_view( v )
                 return
 
 
@@ -195,15 +195,27 @@ class Session:
         # This is mostly useful to obtain the path of this file on the server
         view.settings().set('rsub', self.env)
 
+        self.configure_view( view )
+
+
+    def configure_view( self, view ):
+        global SESSIONS
+
+        if view.is_loading():
+            sublime.set_timeout( lambda: self.configure_view( view ), 100 )
+            return
+
+
         # Add the session to the global list
         SESSIONS[view.id()] = self
-
-        # Bring sublime to front
-        bring_to_front()
 
         line, row =  self.env['selection'].split(':');
         if 'selection' in self.env:
             view.run_command( 'goto_line', { 'line': line, 'row': row } );
+
+        # Bring sublime to front
+        # bring_to_front()
+
 
 
 class ConnectionHandler(socketserver.BaseRequestHandler):
