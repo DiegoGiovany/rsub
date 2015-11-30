@@ -45,6 +45,8 @@ def bring_to_front():
 # http://www.jacobtomlinson.co.uk/2014/02/16/python-script-recursively-remove-empty-folders-directories/
 def removeEmptyFolders( path, removeRoot=True ):
     'Function to remove empty folders'
+    if path is None:
+        return
     if not os.path.isdir(path):
         return
 
