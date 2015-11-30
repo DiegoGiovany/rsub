@@ -201,6 +201,10 @@ class Session:
         # Bring sublime to front
         bring_to_front()
 
+        line, row =  self.env['selection'].split(':');
+        if 'selection' in self.env:
+            view.run_command( 'goto_line', { 'line': line, 'row': row } );
+
 
 class ConnectionHandler(socketserver.BaseRequestHandler):
     def handle(self):
